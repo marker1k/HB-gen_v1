@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+  <link rel="stylesheet" href="codemirror.css">
+  <link rel="stylesheet" href="modal.css">
+  <script src="codemirror.js"></script>
+  <script src="xml.js"></script>
+  <script src="javascript.js"></script>
+  <script src="css.js"></script>
+  <script src="vbscript.js"></script>
+  <script src="htmlmixed.js"></script>
+  <script src="clipboard.js"></script>
+
+  <title>Yandex HB Config Generator</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="conf.js"></script>
+</head>
+
+<body>
+  <div class="header">Header Bidding Config</div>
+  <div id="mainError">ERROR</div>
+
+  <div class="form">
+    <h1>Генерация</h1>
+    <div class="validateWarn" style="display: none;">Id кампаний должны быть уникальными</div>
+    <div id="biddersMap">
+      <h3>1. Bidders Map</h3>
+
+      <p>Выберите из списка покупателя и укажите для него идентификатор рекламной кампании, созданной в вашем аккаунте ADFOX, для данного покупателя.
+      </p>
+
+      <div id="biddersMapInner"></div>
+      <button id="addBiddersMapUiElement" onclick="biddersMap.addBiddersMapUiElement(this);">Добавить</button>
+    </div>
+    <br>
+    <hr>
+
+    <div id="adUnits">
+      <h3>2. Ad Units</h3>
+      <p>Для каждого рекламного места (контейнера) нажмите кнопку "Добавить покупателя" и укажите набор покупателей, участвующих в торгах за показ на этом месте с их placement id. </p>
+      <div class="validateWarn" style="display: none;">ID контейнеров, placementId и биддеры в каждом adUnit должны быть уникальными</div>
+      <div id="adUnitsInner"></div>
+      <button id="addAdUnitsUiElement" onclick="AdUnits.addAdUnitsUiElement(this);">Добавить контейнер</button>
+      </div>
+    <br>
+    <hr>
+
+    <div id="timeOut">
+      <h3>3. User Timeout</h3>
+      <p>Время ожидания ответа от сервера покупателя, рекомендуемое время 500 мс (максимальное 3000 мс).</p>
+      <input id="userTimeout" placeholder="500" value="500" oninput="timeoutInput.checkTimeout(this);">
+    </div>
+    <br>
+    <hr>
+    <button class="generate" onclick="" disabled="">Сгенерировать скрипт</button>
+    <button class="copyToClipboard" onclick="main.showSuccess()">Копировать</button>
+    <button class="generate" onclick="" disabled="" style="visibility: hidden;">Сгенерировать скрипт</button>
+
+    <div>
+      <input type="checkbox" id="as" name="as" value="as">
+        <label for="claws">Использовать <a style="cursor: pointer;    color: #04b;    text-decoration: none;" href="https://sites.help.adfox.ru/page/45/#async">асинхронный loader.js.</a>
+      </label>
+      <p>Обратите внимание, что при использовании асинхронного loader вам нужно будет изменить коды вставки <a href="https://sites.help.adfox.ru/page/45/#async">https://sites.help.adfox.ru/page/45/#async</a></p>
+    </div>
+    <form>
+      <textarea id="result_textarea"></textarea>
+    </form>
+
+    <div class="" id="timeoutError">
+      sdsdfsdf
+    </div>
+
+
+  </div>
+  <div class="container">
+    <h1>Проверка</h1>
+    <div id="result">
+      <div class="tooltip">
+        <input type="text" name="" value="" id="browserWidth" style="width: 200px;margin-right: 10px;" placeholder="Ширина браузера (px)">
+        <div style="display: inline-block; color: grey;">Ширина экрана тестового окружения (необязательно)</div>
+        <span class="tooltiptext" style="position: absolute; top: 2%; right: 25%;">Если конфиг разбит по устройствам, то укажите желаемую ширину экрана для проверки</span>
+      </div><br>
+      <input type="text" name="" value="" id="configUrl" style="width: 200px;margin-right: 10px;" placeholder="URL с протоколом"><button onclick="window.validate.loadFromUrl();">Загрузить конфиг по URL</button><br><br>
+
+       <!-- <button class="generate" onclick="" id="generate" disabled="">Сгенерировать скрипт</button> -->
+      <button class="check" onclick="validate.check();">Проверить</button>
+      <!--<button class="generate" id="generate" onclick="" disabled="">Генерация</button>-->
+
+      <span class="error" id="generateError">Заполните все поля</span>
+      <br>
+      <form>
+        <textarea id="input_textarea"></textarea>
+      </form>
+    </div>
+  </div>
+  <div id="timeoutError">ID контейнеров должны быть уникальными</div>
+  <div id="sizesError">ID контейнеров должны быть уникальными</div>
+  <div id="generateError">ID контейнеров должны быть уникальными</div>
+  <div id="sameContainer">ID контейнеров должны быть уникальными</div>
+  <div id="fillAdUnits">ID контейнеров должны быть уникальными</div>
+  <div id="wrongLetters">ID контейнеров должны быть уникальными</div>
+  <div id="emptyBidder">ID контейнеров должны быть уникальными</div>
+  <div id="emptyPlacement">ID контейнеров должны быть уникальными</div>
+  <div id="adfoxParamsError">ID контейнеров должны быть уникальными</div>
+  <div id="accountError">Обратите внимание: введённый логин и логин в коде вставки не совпадает</div>
+  <div id="similarCode">Обратите внимание: вы уже использовали такой код вставки</div>
+  <div id="ownerIdError">Код с таким ownerId уже используется</div>
+  <script type="text/javascript">
+    var editorSelector = '#result_textarea';
+    new ClipboardJS('.copyToClipboard', {
+      text: function(trigger) {
+        return getCodeMirrorNative(editorSelector).getDoc().getValue();
+      }
+    });
+
+    function getCodeMirrorNative(target) {
+      var _target = target;
+      if (typeof _target === 'string') {
+        _target = document.querySelector(_target);
+      }
+      if (_target === null || !_target.tagName === undefined) {
+        throw new Error('Element does not reference a CodeMirror instance.');
+      }
+
+      if (_target.className.indexOf('CodeMirror') > -1) {
+        return _target.CodeMirror;
+      }
+
+      if (_target.tagName === 'TEXTAREA') {
+        return _target.nextSibling.CodeMirror;
+      }
+
+      return null;
+    };
+    var generateButtons = document.getElementsByClassName("generate");
+    for (var i = 0; i < generateButtons.length; i += 1) {
+      generateButtons[i].addEventListener('click', function() {
+        main.makeInstall();
+      });
+      generateButtons[i].disabled = true;
+    }
+  </script>
+<div class="waitSpinner">
+  <div class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+</div>
+
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript" >
+   (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+   m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+   (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+   ym(50256261, "init", {
+        clickmap:true,
+        trackLinks:true,
+        accurateTrackBounce:true,
+        webvisor:true
+   });
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/50256261" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+<script src="lib/micromodal.min.js"></script>
+
+<!-- modal -->
+<!-- [1] -->
+<div class="modal micromodal-slide" id="modal-1" aria-hidden="true">
+    <div class="modal__overlay" tabindex="-1" data-micromodal-close>
+      <div class="modal__container" role="dialog" aria-modal="true" aria-labelledby="modal-1-title">
+        <header class="modal__header">
+          <h2 class="modal__title" id="modal-1-title">
+            Micromodal
+          </h2>
+          <button class="modal__close" aria-label="Close modal" data-micromodal-close></button>
+        </header>
+        <main class="modal__content" id="modal-1-content">
+          <p>
+            Try hitting the <code>tab</code> key and notice how the focus stays within the modal itself. Also, <code>esc</code> to close modal.
+          </p>
+        </main>
+        <footer class="modal__footer">
+          <!-- <button class="modal__btn modal__btn-primary">Continue</button> -->
+          <button class="modal__btn" data-micromodal-close aria-label="Close this dialog window">Close</button>
+        </footer>
+      </div>
+    </div>
+  </div>
+<!-- modal -->
+</body>
+</html>
