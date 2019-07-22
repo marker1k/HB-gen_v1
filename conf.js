@@ -1,5 +1,5 @@
 // Сделать объект название - ключ
-var biddersList = ["criteo", "adriver", "hpmd", "buzzoola", "myTarget", "facebook", "betweenDigital", "aio", "getintent", "tinkoff", "videonow", "rtbhouse", "relap", "pladform", "alfasense", "adfox"].sort();
+var biddersList = ["criteo", "adriver", "hpmd", "buzzoola", "myTarget", "facebook", "betweenDigital", "aio", "getintent", "tinkoff", "videonow", "rtbhouse", "relap", "pladform", "alfasense", "adfox", "mgid", "hybrid"].sort();
 //те, которым требуются размеры
 var requreSizes = ["adriver", "betweenDigital", "facebook", "pladform"];
 
@@ -768,6 +768,8 @@ var validate = {
       var width = document.querySelector("#browserWidth").value;
       if (width !== "") {
         window.innerWidth  = parseInt(width);
+        // window.document.documentElement.clientWidth = parseInt(width);
+        // window.document.body.clientWidth = parseInt(width);
       }
       try {
         var input = eval(regexp.exec(document.querySelector("#input_textarea").value + "window.YaHeaderBiddingSettings = {biddersMap: adfoxBiddersMap,adUnits: adUnits,timeout: userTimeout};").input);
