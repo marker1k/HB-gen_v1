@@ -370,8 +370,10 @@ var AdUnits = {
         }
     },
     removeUnit: function(elem) {
-        var id = elem.parentNode.id;
-        AdUnits.adUnitsUsed.splice(id - 1, 1);
+        // var id = elem.parentNode.id;
+        // AdUnits.adUnitsUsed.splice(id - 1, 1);
+        var index = main.getPreviousSiblings(elem.parentNode.parentNode).length;
+        AdUnits.adUnitsUsed.splice(index, 1);
         if (document.getElementById("sameContainer").style.visibility == "visible") {
             document.getElementById("sameContainer").style.visibility = "hidden";
         }
